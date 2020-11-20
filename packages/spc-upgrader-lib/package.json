@@ -1,0 +1,16 @@
+{
+  "name": "spc-upgrader-lib",
+  "version": "1.0.0",
+  "author": "Gabriel Montes <gabriel@bloq.com>",
+  "license": "MIT",
+  "main": "src/index.js",
+  "files": [
+    "src"
+  ],
+  "scripts": {},
+  "dependencies": {
+    "debug": "^4.3.1",
+    "p-tap": "^3.1.0",
+    "spc-lib": "^1.0.0"
+  }
+}
