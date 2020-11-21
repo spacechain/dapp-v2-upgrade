@@ -27,6 +27,21 @@
         "env": {
           "mocha": true
         }
+      },
+      {
+        "extends": [
+          "eslint:recommended",
+          "plugin:react/recommended"
+        ],
+        "files": [
+          "site/**/*.js"
+        ],
+        "parserOptions": {
+          "ecmaFeatures": {
+            "jsx": true
+          },
+          "sourceType": "module"
+        }
       }
     ]
   },
