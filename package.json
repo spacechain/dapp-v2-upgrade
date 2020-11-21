@@ -1,9 +1,11 @@
 {
   "name": "spc-token-upgrade",
   "version": "1.0.0",
-  "scripts": {},
-  "author": "Gabriel Montes",
   "license": "MIT",
+  "author": "Gabriel Montes",
+  "scripts": {
+    "postinstall": "lerna bootstrap"
+  },
   "devDependencies": {
     "eslint": "^7.13.0",
     "lerna": "^3.22.1",
@@ -16,6 +18,16 @@
     },
     "extends": [
       "eslint:recommended"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "*.spec.js"
+        ],
+        "env": {
+          "mocha": true
+        }
+      }
     ]
   },
   "prettier": {

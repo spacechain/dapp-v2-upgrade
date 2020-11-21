@@ -1,6 +1,6 @@
 'use srict'
 
-const debug = require('debug')('spc-upgrader')
+const debug = require('debug')('spc-upgrader:estimate-send')
 const pTap = require('p-tap')
 
 const createEstimateGasAndSend = (web3, emitter, overestimation = 1.25) =>
@@ -42,13 +42,13 @@ const createEstimateGasAndSend = (web3, emitter, overestimation = 1.25) =>
         )
 
         const promiEvent = method.send({ ...transactionOptions, gas })
-        
+
         promiEvent.on('transactionHash', function (_hash) {
           hash = _hash
           debug('Transaction hash is %s', _hash)
           emitter.emit(suffixed('transactionHash'), _hash)
         })
-        
+
         promiEvent.on('receipt', function (receipt) {
           debug('Transaction %s %s', receipt.status ? 'mined' : 'failed', hash)
           getTransaction()
@@ -59,7 +59,7 @@ const createEstimateGasAndSend = (web3, emitter, overestimation = 1.25) =>
               promiEvent.emit('error', err)
             })
         })
-        
+
         promiEvent.on('error', function (err) {
           debug('Transaction failed %s: %s', hash || '?', err.message)
           if (!emitter.listenerCount('error')) {

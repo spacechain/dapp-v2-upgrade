@@ -412,7 +412,7 @@ const tokenUpgraderAbi = [
   },
 ]
 
-function createSpcLib(web3) {
+function createSpcContracts(web3) {
   return {
     getTokenUpgrader: (address) =>
       new web3.eth.Contract(tokenUpgraderAbi, address),
@@ -421,4 +421,4 @@ function createSpcLib(web3) {
   }
 }
 
-module.exports = createSpcLib
+module.exports = createSpcContracts
