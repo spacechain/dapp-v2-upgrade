@@ -59,11 +59,7 @@ function SpcUpgrader() {
 
   useEffect(
     function () {
-      if (active) {
-        setSpcUpgrader(createSpcUpgrader(library, account))
-      } else {
-        setSpcUpgrader(null)
-      }
+      setSpcUpgrader(active ? createSpcUpgrader(library, account) : null)
     },
     [account, active, library]
   )
@@ -92,6 +88,32 @@ function SpcUpgrader() {
       setMigratingTokens(false)
     })
   }
+
+  useEffect(
+    function () {
+      if (!spcInfo || spcInfo.spcv2Balance === '0') {
+        return
+      }
+
+      const key = `SPC-token-registered-${account}`
+      if (window.localStorage.getItem(key) === 'true') {
+        return
+      }
+
+      window.ethereum
+        .request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20',
+            options: spcInfo.spcv2,
+          },
+        })
+        .then(function () {
+          window.localStorage.setItem(key, 'true')
+        })
+    },
+    [spcInfo]
+  )
 
   const haveSpcv1Balance =
     spcInfo &&

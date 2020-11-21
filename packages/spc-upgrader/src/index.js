@@ -8,23 +8,30 @@ function createSpcUpgrader(web3, from) {
   const spcLib = createSpcContracts(web3)
 
   const getInfo = () =>
-    Promise.all([
-      spcLib.spcv1.methods.balanceOf(from).call(),
-      spcLib.spcv2.methods.balanceOf(from).call(),
-      spcLib.spcv2.methods.tokenUpgrader(from).call(),
-    ])
-      .then(([spcv1Balance, spcv2Balance, tokenUpgraderAddress]) =>
+    spcLib.spcv2.methods
+      .tokenUpgrader(from)
+      .call()
+      .then((tokenUpgraderAddress) =>
         tokenUpgraderAddress
           ? spcLib.spcv1.methods
               .balanceOf(tokenUpgraderAddress)
               .call()
               .then((tokenUpgraderBalance) => [
-                spcv1Balance,
-                spcv2Balance,
                 tokenUpgraderAddress,
                 tokenUpgraderBalance,
               ])
-          : [spcv1Balance, spcv2Balance, null, '0']
+          : [null, '0']
+      )
+      .then(([tokenUpgraderAddress, tokenUpgraderBalance]) =>
+        Promise.all([
+          spcLib.spcv1.methods.balanceOf(from).call(),
+          spcLib.spcv2.methods.balanceOf(from).call(),
+          tokenUpgraderAddress,
+          tokenUpgraderBalance,
+          spcLib.spcv2.options.address,
+          spcLib.spcv2.methods.symbol().call(),
+          spcLib.spcv2.methods.decimals().call(),
+        ])
       )
       .then(
         ([
@@ -32,11 +39,15 @@ function createSpcUpgrader(web3, from) {
           spcv2Balance,
           tokenUpgraderAddress,
           tokenUpgraderBalance,
+          address,
+          symbol,
+          decimals,
         ]) => ({
           spcv1Balance,
           spcv2Balance,
           tokenUpgraderAddress,
           tokenUpgraderBalance,
+          spcv2: { address, symbol, decimals },
         })
       )
 
