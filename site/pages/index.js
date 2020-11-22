@@ -63,6 +63,7 @@ function SpcUpgrader() {
   const [creatingUpgrader, setCreatingUpgrader] = useState(false)
   const [transferingTokens, setTransferingTokens] = useState(false)
   const [migratingTokens, setMigratingTokens] = useState(false)
+  const [blockNumber, setBlockNumber] = useState()
 
   useEffect(
     function () {
@@ -79,7 +80,13 @@ function SpcUpgrader() {
         setSpcInfo(null)
       }
     },
-    [creatingUpgrader, transferingTokens, migratingTokens, spcUpgrader]
+    [
+      blockNumber,
+      creatingUpgrader,
+      transferingTokens,
+      migratingTokens,
+      spcUpgrader,
+    ]
   )
 
   const createUpgrader = function () {
@@ -127,6 +134,24 @@ function SpcUpgrader() {
         })
     },
     [spcInfo]
+  )
+
+  useEffect(
+    function () {
+      if (!library) {
+        return
+      }
+
+      const subscription = library.eth.subscribe('newBlockHeaders')
+      subscription.on('data', function ({ number }) {
+        setBlockNumber(number)
+      })
+
+      return function () {
+        subscription.unsubscribe()
+      }
+    },
+    [library]
   )
 
   return spcInfo ? (
