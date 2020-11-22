@@ -7,47 +7,20 @@ import React from 'react'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
-function ConnectButton() {
-  const { active, activate, deactivate } = useWeb3React()
+function ConnectWallet() {
+  const { account, active, activate, deactivate } = useWeb3React()
 
   const injected = new InjectedConnector({ supportedChainIds: [1, 1337] })
   const activateConnector = () => activate(injected)
   const deactivateConnector = () => deactivate()
 
   return active ? (
-    <button onClick={deactivateConnector}>Disconnect Wallet</button>
+    <div>
+      <button onClick={deactivateConnector}>Disconnect Wallet</button>
+      <div>Account: {account}</div>
+    </div>
   ) : (
     <button onClick={activateConnector}>Connect Wallet</button>
-  )
-}
-
-function Account() {
-  const { account } = useWeb3React()
-
-  return <div>Account: {account || '-'}</div>
-}
-
-function CreateUpgraderButton({ disabled, createUpgrader }) {
-  return (
-    <button disabled={disabled} onClick={createUpgrader}>
-      Create Upgrader
-    </button>
-  )
-}
-
-function TransferButton({ disabled, transferTokens }) {
-  return (
-    <button disabled={disabled} onClick={transferTokens}>
-      Transfer All Tokens
-    </button>
-  )
-}
-
-function MigrateButton({ disabled, migrateTokens }) {
-  return (
-    <button disabled={disabled} onClick={migrateTokens}>
-      Migrate All Tokens
-    </button>
   )
 }
 
@@ -63,18 +36,19 @@ function TokenUpgrader({
     <div>
       <h3>Token Upgrader</h3>
       {address === ZERO_ADDRESS ? (
-        <CreateUpgraderButton
-          disabled={creatingUpgrader}
-          createUpgrader={createUpgrader}
-        />
+        <button disabled={creatingUpgrader} onClick={createUpgrader}>
+          Create Upgrader
+        </button>
       ) : (
         <div>
           <div>Token Upgrader: {address}</div>
           <div>Balance: {utils.fromWei(balance)} SPC</div>
-          <MigrateButton
+          <button
             disabled={balance === '0' || migratingTokens}
-            migrateTokens={migrateTokens}
-          />
+            onClick={migrateTokens}
+          >
+            Migrate All Tokens
+          </button>
         </div>
       )}
     </div>
@@ -160,10 +134,12 @@ function SpcUpgrader() {
       <h3>SPC v1</h3>
       <div>Balance: {utils.fromWei(spcInfo.spcv1Balance)} SPC</div>
       {spcInfo.tokenUpgraderAddress !== ZERO_ADDRESS && (
-        <TransferButton
+        <button
           disabled={spcInfo.spcv1Balance === '0' || transferingTokens}
-          transferTokens={transferTokens}
-        />
+          onClick={transferTokens}
+        >
+          Transfer All Tokens
+        </button>
       )}
       <TokenUpgrader
         address={spcInfo.tokenUpgraderAddress}
@@ -183,8 +159,7 @@ function HomePage() {
   return (
     <div>
       <h2>SPC Token Upgrade</h2>
-      <ConnectButton />
-      <Account />
+      <ConnectWallet />
       <SpcUpgrader />
     </div>
   )
