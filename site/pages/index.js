@@ -28,15 +28,14 @@ function TokenUpgrader({
   address,
   balance,
   createUpgrader,
-  creatingUpgrader,
   migrateTokens,
-  migratingTokens,
+  waitingWallet,
 }) {
   return (
     <div>
       <h3>Token Upgrader</h3>
       {address === ZERO_ADDRESS ? (
-        <button disabled={creatingUpgrader} onClick={createUpgrader}>
+        <button disabled={waitingWallet} onClick={createUpgrader}>
           Create Upgrader
         </button>
       ) : (
@@ -44,7 +43,7 @@ function TokenUpgrader({
           <div>Token Upgrader: {address}</div>
           <div>Balance: {utils.fromWei(balance)} SPC</div>
           <button
-            disabled={balance === '0' || migratingTokens}
+            disabled={balance === '0' || waitingWallet}
             onClick={migrateTokens}
           >
             Migrate All Tokens
@@ -60,9 +59,7 @@ function SpcUpgrader() {
 
   const [spcInfo, setSpcInfo] = useState()
   const [spcUpgrader, setSpcUpgrader] = useState()
-  const [creatingUpgrader, setCreatingUpgrader] = useState(false)
-  const [transferingTokens, setTransferingTokens] = useState(false)
-  const [migratingTokens, setMigratingTokens] = useState(false)
+  const [waitingWallet, setWaitingWallet] = useState(false)
   const [blockNumber, setBlockNumber] = useState()
 
   useEffect(
@@ -80,35 +77,20 @@ function SpcUpgrader() {
         setSpcInfo(null)
       }
     },
-    [
-      blockNumber,
-      creatingUpgrader,
-      transferingTokens,
-      migratingTokens,
-      spcUpgrader,
-    ]
+    [blockNumber, waitingWallet, spcUpgrader]
   )
 
-  const createUpgrader = function () {
-    setCreatingUpgrader(true)
-    spcUpgrader.createUpgrader().promise.finally(function () {
-      setCreatingUpgrader(false)
-    })
-  }
+  const spcUpgraderOperation = (op) =>
+    function () {
+      setWaitingWallet(true)
+      spcUpgrader[op]().promise.finally(function () {
+        setWaitingWallet(false)
+      })
+    }
 
-  const transferTokens = function () {
-    setTransferingTokens(true)
-    spcUpgrader.transferTokens().promise.finally(function () {
-      setTransferingTokens(false)
-    })
-  }
-
-  const migrateTokens = function () {
-    setMigratingTokens(true)
-    spcUpgrader.migrateTokens().promise.finally(function () {
-      setMigratingTokens(false)
-    })
-  }
+  const createUpgrader = spcUpgraderOperation('createUpgrader')
+  const transferTokens = spcUpgraderOperation('transferTokens')
+  const migrateTokens = spcUpgraderOperation('migrateTokens')
 
   useEffect(
     function () {
@@ -138,7 +120,7 @@ function SpcUpgrader() {
 
   useEffect(
     function () {
-      if (!library) {
+      if (!active || !library) {
         return
       }
 
@@ -151,7 +133,7 @@ function SpcUpgrader() {
         subscription.unsubscribe()
       }
     },
-    [library]
+    [active, library]
   )
 
   return spcInfo ? (
@@ -160,7 +142,7 @@ function SpcUpgrader() {
       <div>Balance: {utils.fromWei(spcInfo.spcv1Balance)} SPC</div>
       {spcInfo.tokenUpgraderAddress !== ZERO_ADDRESS && (
         <button
-          disabled={spcInfo.spcv1Balance === '0' || transferingTokens}
+          disabled={spcInfo.spcv1Balance === '0' || waitingWallet}
           onClick={transferTokens}
         >
           Transfer All Tokens
@@ -170,9 +152,8 @@ function SpcUpgrader() {
         address={spcInfo.tokenUpgraderAddress}
         balance={spcInfo.tokenUpgraderBalance}
         createUpgrader={createUpgrader}
-        creatingUpgrader={creatingUpgrader}
         migrateTokens={migrateTokens}
-        migratingTokens={migratingTokens}
+        waitingWallet={waitingWallet}
       />
       <h3>SPC v2</h3>
       <div>Balance: {utils.fromWei(spcInfo.spcv2Balance)} SPC</div>
