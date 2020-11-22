@@ -26,26 +26,57 @@ function Account() {
   return <div>Account: {account || '-'}</div>
 }
 
-function TokenUpgrader({ address, balance, createUpgrader, disabled }) {
-  return address === ZERO_ADDRESS ? (
-    <div>
-      <button disabled={disabled} onClick={createUpgrader}>
-        Create Upgrader
-      </button>
-    </div>
-  ) : (
-    <div>
-      <div>Token Upgrader: {address}</div>
-      <div>Balance: {utils.fromWei(balance)} SPC v1</div>
-    </div>
+function CreateUpgraderButton({ disabled, createUpgrader }) {
+  return (
+    <button disabled={disabled} onClick={createUpgrader}>
+      Create Upgrader
+    </button>
   )
 }
 
-function MigrateControl({ disabled, migrateTokens }) {
+function TransferButton({ disabled, transferTokens }) {
+  return (
+    <button disabled={disabled} onClick={transferTokens}>
+      Transfer All Tokens
+    </button>
+  )
+}
+
+function MigrateButton({ disabled, migrateTokens }) {
   return (
     <button disabled={disabled} onClick={migrateTokens}>
       Migrate All Tokens
     </button>
+  )
+}
+
+function TokenUpgrader({
+  address,
+  balance,
+  createUpgrader,
+  creatingUpgrader,
+  migrateTokens,
+  migratingTokens,
+}) {
+  return (
+    <div>
+      <h3>Token Upgrader</h3>
+      {address === ZERO_ADDRESS ? (
+        <CreateUpgraderButton
+          disabled={creatingUpgrader}
+          createUpgrader={createUpgrader}
+        />
+      ) : (
+        <div>
+          <div>Token Upgrader: {address}</div>
+          <div>Balance: {utils.fromWei(balance)} SPC</div>
+          <MigrateButton
+            disabled={balance === '0' || migratingTokens}
+            migrateTokens={migrateTokens}
+          />
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -55,6 +86,7 @@ function SpcUpgrader() {
   const [spcInfo, setSpcInfo] = useState()
   const [spcUpgrader, setSpcUpgrader] = useState()
   const [creatingUpgrader, setCreatingUpgrader] = useState(false)
+  const [transferingTokens, setTransferingTokens] = useState(false)
   const [migratingTokens, setMigratingTokens] = useState(false)
 
   useEffect(
@@ -72,13 +104,20 @@ function SpcUpgrader() {
         setSpcInfo(null)
       }
     },
-    [creatingUpgrader, migratingTokens, spcUpgrader]
+    [creatingUpgrader, transferingTokens, migratingTokens, spcUpgrader]
   )
 
   const createUpgrader = function () {
     setCreatingUpgrader(true)
     spcUpgrader.createUpgrader().promise.finally(function () {
       setCreatingUpgrader(false)
+    })
+  }
+
+  const transferTokens = function () {
+    setTransferingTokens(true)
+    spcUpgrader.transferTokens().promise.finally(function () {
+      setTransferingTokens(false)
     })
   }
 
@@ -115,27 +154,26 @@ function SpcUpgrader() {
     [spcInfo]
   )
 
-  const haveSpcv1Balance =
-    spcInfo &&
-    (spcInfo.spcv1Balance !== '0' || spcInfo.tokenUpgraderBalance !== '0')
-
   return spcInfo ? (
     <div>
-      <div>Balances:</div>
-      <div>{utils.fromWei(spcInfo.spcv1Balance)} SPC v1</div>
-      <div>{utils.fromWei(spcInfo.spcv2Balance)} SPC v2</div>
+      <h3>SPC v1</h3>
+      <div>Balance: {utils.fromWei(spcInfo.spcv1Balance)} SPC</div>
+      {spcInfo.tokenUpgraderAddress !== ZERO_ADDRESS && (
+        <TransferButton
+          disabled={spcInfo.spcv1Balance === '0' || transferingTokens}
+          transferTokens={transferTokens}
+        />
+      )}
       <TokenUpgrader
         address={spcInfo.tokenUpgraderAddress}
         balance={spcInfo.tokenUpgraderBalance}
         createUpgrader={createUpgrader}
-        disabled={creatingUpgrader}
+        creatingUpgrader={creatingUpgrader}
+        migrateTokens={migrateTokens}
+        migratingTokens={migratingTokens}
       />
-      {spcInfo.tokenUpgraderAddress !== ZERO_ADDRESS && (
-        <MigrateControl
-          disabled={migratingTokens || !haveSpcv1Balance}
-          migrateTokens={migrateTokens}
-        />
-      )}
+      <h3>SPC v2</h3>
+      <div>Balance: {utils.fromWei(spcInfo.spcv2Balance)} SPC</div>
     </div>
   ) : null
 }

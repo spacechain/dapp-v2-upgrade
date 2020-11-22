@@ -63,29 +63,29 @@ function createSpcUpgrader(web3, from) {
     return executeCalls(web3, calls, from)
   }
 
-  function migrateTokens(amount, transactionOptions) {
-    const calls = getInfo().then(function ({
-      spcv1Balance,
-      tokenUpgraderAddress,
-    }) {
-      const _calls = []
-      if (spcv1Balance !== '0') {
-        _calls.push({
-          method: spcLib.spcv1.methods.transfer(
-            tokenUpgraderAddress,
-            amount || spcv1Balance
-          ),
-          transactionOptions,
-          suffix: 'transfer-spcv1',
-        })
-      }
-      _calls.push({
+  function transferTokens(amount, transactionOptions) {
+    const calls = getInfo().then(({ spcv1Balance, tokenUpgraderAddress }) => [
+      {
+        method: spcLib.spcv1.methods.transfer(
+          tokenUpgraderAddress,
+          amount || spcv1Balance
+        ),
+        transactionOptions,
+        suffix: 'transfer-spcv1',
+      },
+    ])
+
+    return executeCalls(web3, calls, from)
+  }
+
+  function migrateTokens(transactionOptions) {
+    const calls = [
+      {
         method: spcLib.spcv2.methods.migrateV1tokens(),
         transactionOptions,
         suffix: 'migrate-spcv1',
-      })
-      return _calls
-    })
+      },
+    ]
 
     return executeCalls(web3, calls, from)
   }
@@ -93,6 +93,7 @@ function createSpcUpgrader(web3, from) {
   return {
     getInfo,
     createUpgrader,
+    transferTokens,
     migrateTokens,
   }
 }

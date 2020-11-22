@@ -105,6 +105,9 @@ describe('End-to-end', function () {
         )
       })
       .then(function () {
+        return spcUpgrader.transferTokens().promise
+      })
+      .then(function () {
         return spcUpgrader.migrateTokens().promise
       })
       .then(function () {
