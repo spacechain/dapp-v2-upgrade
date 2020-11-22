@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "eslint": "^7.13.0",
+    "eslint-plugin-react": "^7.21.5",
     "lerna": "^3.22.1",
     "prettier": "^2.1.2"
   },
@@ -29,18 +30,24 @@
         }
       },
       {
+        "files": [
+          "site/**/*.js"
+        ],
+        "env": {
+          "browser": true
+        },
         "extends": [
           "eslint:recommended",
           "plugin:react/recommended"
-        ],
-        "files": [
-          "site/**/*.js"
         ],
         "parserOptions": {
           "ecmaFeatures": {
             "jsx": true
           },
           "sourceType": "module"
+        },
+        "rules": {
+          "react/prop-types": "off"
         }
       }
     ]

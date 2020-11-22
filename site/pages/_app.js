@@ -1,4 +1,5 @@
 import '../styles/globals.css'
+import React from 'react'
 import { Web3ReactProvider } from '@web3-react/core'
 import Web3 from 'web3'
 

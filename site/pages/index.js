@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { utils } from 'web3'
 import createSpcUpgrader from 'spc-upgrader'
+import React from 'react'
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
