@@ -8,19 +8,28 @@ import React from 'react'
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 function ConnectWallet() {
-  const { account, active, activate, deactivate } = useWeb3React()
+  const { account, active, activate, error, deactivate } = useWeb3React()
 
   const injected = new InjectedConnector({ supportedChainIds: [1, 1337] })
   const activateConnector = () => activate(injected)
   const deactivateConnector = () => deactivate()
 
-  return active ? (
+  console.log('>>> a', active, 'e', !!error)
+
+  return !active && !error ? (
+    <button onClick={activateConnector}>Connect Wallet</button>
+  ) : active ? (
     <div>
       <button onClick={deactivateConnector}>Disconnect Wallet</button>
       <div>Account: {account}</div>
     </div>
   ) : (
-    <button onClick={activateConnector}>Connect Wallet</button>
+    <div>
+      Error:{' '}
+      {error.name === 'UnsupportedChainIdError'
+        ? 'Please connect to the Ethereum mainnet'
+        : error.message}
+    </div>
   )
 }
 
@@ -55,7 +64,7 @@ function TokenUpgrader({
 }
 
 function SpcUpgrader() {
-  const { account, active, library } = useWeb3React()
+  const { account, active, error, library } = useWeb3React()
 
   const [spcInfo, setSpcInfo] = useState()
   const [spcUpgrader, setSpcUpgrader] = useState()
@@ -64,9 +73,11 @@ function SpcUpgrader() {
 
   useEffect(
     function () {
-      setSpcUpgrader(active ? createSpcUpgrader(library, account) : null)
+      setSpcUpgrader(
+        active && !error ? createSpcUpgrader(library, account) : null
+      )
     },
-    [account, active, library]
+    [account, active, error, library]
   )
 
   useEffect(
