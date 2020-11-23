@@ -14,8 +14,6 @@ function ConnectWallet() {
   const activateConnector = () => activate(injected)
   const deactivateConnector = () => deactivate()
 
-  console.log('>>> a', active, 'e', !!error)
-
   return !active && !error ? (
     <button onClick={activateConnector}>Connect Wallet</button>
   ) : active ? (
