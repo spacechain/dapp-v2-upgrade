@@ -8,7 +8,7 @@ import React from 'react'
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 function ConnectWallet() {
-  const { account, active, activate, error, deactivate } = useWeb3React()
+  const { account, active, activate, deactivate, error } = useWeb3React()
 
   const injected = new InjectedConnector({ supportedChainIds: [1, 1337] })
   const activateConnector = () => activate(injected)
@@ -24,10 +24,10 @@ function ConnectWallet() {
   ) : (
     <div>
       Error:{' '}
-      {error.name === 'UnsupportedChainIdError'
-        ? 'Please connect to the Ethereum mainnet'
-        : error.name === 'NoEthereumProviderError'
-        ? 'No Ethereum browser extension detected, install MetaMask or visit using a dApp browser on mobile'
+      {error.message.startsWith('Unsupported chain id')
+        ? 'You are connected to an unsupported network. Connect to the Ethereum mainnet.'
+        : error.message.startsWith('No Ethereum provider')
+        ? 'No Ethereum browser extension detected. Install MetaMask on desktop or visit from a dApp browser on mobile.'
         : error.message}
     </div>
   )
