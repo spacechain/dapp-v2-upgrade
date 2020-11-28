@@ -26,6 +26,8 @@ function ConnectWallet() {
       Error:{' '}
       {error.name === 'UnsupportedChainIdError'
         ? 'Please connect to the Ethereum mainnet'
+        : error.name === 'NoEthereumProviderError'
+        ? 'No Ethereum browser extension detected, install MetaMask or visit using a dApp browser on mobile'
         : error.message}
     </div>
   )
