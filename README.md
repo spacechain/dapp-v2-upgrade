@@ -1,8 +1,8 @@
 # SPC token upgrade
 
-Web application to upgrade SPC v1 tokens to SPC v2 with easy.
+Web application to upgrade SPC v1 tokens to SPC v2 with ease.
 
-## How to
+## How to Use
 
 ```sh
 npm install
